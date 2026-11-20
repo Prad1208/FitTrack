@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: fittrack-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: fittrack_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: fittrack_user
+      MYSQL_PASSWORD: fittrack_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./fittrack-backend
+      dockerfile: Dockerfile
+    container_name: fittrack-backend
+    restart: always
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/fittrack_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: fittrack_user
+      SPRING_DATASOURCE_PASSWORD: fittrack_password
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-YOUR_GEMINI_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./fittrack-frontend
+      dockerfile: Dockerfile
+    container_name: fittrack-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  mysql_data:
