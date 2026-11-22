@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import { 
   Sparkles, 
@@ -8,17 +8,49 @@ import {
   Bot, 
   Send, 
   RefreshCw,
-  Clock,
-  Flame,
+  Key,
+  ShieldCheck,
+  Cpu,
+  X,
   CheckCircle2,
-  ChevronRight
+  AlertCircle
 } from 'lucide-react';
 
 export default function AiCoachPage() {
   const [activeTab, setActiveTab] = useState('workout'); // workout, nutrition, running, chat
 
+  // Gemini API Key State
+  const [geminiKey, setGeminiKey] = useState('');
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [inputKey, setInputKey] = useState('');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('fittrack_gemini_key') || '';
+    setGeminiKey(saved);
+    setInputKey(saved);
+  }, []);
+
+  const handleSaveKey = () => {
+    const trimmed = inputKey.trim();
+    if (trimmed) {
+      localStorage.setItem('fittrack_gemini_key', trimmed);
+      setGeminiKey(trimmed);
+    } else {
+      localStorage.removeItem('fittrack_gemini_key');
+      setGeminiKey('');
+    }
+    setShowKeyModal(false);
+  };
+
+  const handleRemoveKey = () => {
+    localStorage.removeItem('fittrack_gemini_key');
+    setGeminiKey('');
+    setInputKey('');
+    setShowKeyModal(false);
+  };
+
   // AI Workout State
-  const [splitType, setSplitType] = useState('PPL');
+  const [splitType, setSplitType] = useState('Push Pull Legs (PPL)');
   const [daysPerWeek, setDaysPerWeek] = useState(3);
   const [equipment, setEquipment] = useState('Full Commercial Gym');
   const [fitnessLevel, setFitnessLevel] = useState('Intermediate');
@@ -44,11 +76,20 @@ export default function AiCoachPage() {
   const [chatMessages, setChatMessages] = useState([
     {
       sender: 'ai',
-      text: 'Hello! I am your FitTrack AI Coach powered by Google Gemini. Ask me about exercise form, workout substitutions (e.g., if a joint hurts), plateau busting, or meal prep strategies!'
+      text: 'Hello! I am your FitTrack AI Coach. Ask me anything about exercise substitutions (e.g. if your shoulders or knees hurt), Indian vegetarian/non-vegetarian high protein meal strategies, progressive overload, or calorie deficit tracking!'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [loadingChat, setLoadingChat] = useState(false);
+
+  // Quick Prompt Chips
+  const promptSuggestions = [
+    "Today my shoulder is paining, what can I do?",
+    "How to hit 100g protein on an Indian vegetarian diet?",
+    "Best exercises to substitute squats if my knees hurt?",
+    "I'm stuck in a bench press plateau, how to apply 2-for-2 rule?",
+    "How much water and creatine should I take daily?"
+  ];
 
   // Handlers
   const handleGenerateWorkout = async () => {
@@ -104,41 +145,70 @@ export default function AiCoachPage() {
     }
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim() || loadingChat) return;
+  const sendChatMessage = async (msgText) => {
+    const textToSend = msgText || inputMessage;
+    if (!textToSend.trim() || loadingChat) return;
 
-    const userText = inputMessage;
     setInputMessage('');
-    setChatMessages((prev) => [...prev, { sender: 'user', text: userText }]);
+    setChatMessages((prev) => [...prev, { sender: 'user', text: textToSend }]);
 
     try {
       setLoadingChat(true);
-      const res = await api.post('/ai/assistant-chat', { message: userText });
+      const res = await api.post('/ai/assistant-chat', { message: textToSend });
       setChatMessages((prev) => [...prev, { sender: 'ai', text: res.data.response }]);
     } catch (err) {
       console.error('Chat error', err);
       setChatMessages((prev) => [
         ...prev, 
-        { sender: 'ai', text: 'Apologies, I encountered an issue reaching the fitness intelligence server. Please try again in a moment.' }
+        { sender: 'ai', text: 'Apologies, I encountered an issue communicating with the AI intelligence server. Please try again.' }
       ]);
     } finally {
       setLoadingChat(false);
     }
   };
 
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    sendChatMessage();
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-400">
-          <Sparkles className="w-4 h-4" /> Google Gemini Intelligence Suite
+      {/* Header & Engine Status Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-400">
+            <Sparkles className="w-4 h-4" /> FitTrack Intelligence Suite
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">AI Fitness & Coaching Suite</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Periodized gym routines, macro-aligned meal options, running schedules, and sports-science chat assistance.
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">AI Fitness & Coaching Suite</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Generate periodized gym routines, meal options matching remaining deficits, running schedules, and get instant answers from your AI coach.
-        </p>
+
+        {/* Engine Status Badge & Key Button */}
+        <div className="flex items-center gap-3">
+          {geminiKey ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Google Gemini 2.5 Live Active
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold">
+              <Cpu className="w-3.5 h-3.5" />
+              FitTrack Sports Engine Active
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowKeyModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all shadow-sm"
+          >
+            <Key className="w-3.5 h-3.5 text-amber-400" />
+            {geminiKey ? 'Gemini Key Configured' : 'Connect Gemini API Key'}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -184,9 +254,9 @@ export default function AiCoachPage() {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                 >
                   <option value="Push Pull Legs (PPL)">Push Pull Legs (PPL)</option>
-                  <option value="Upper Lower Split">Upper Lower (4-Day)</option>
+                  <option value="Upper Lower Split">Upper Lower Split</option>
                   <option value="Arnold Bro Split">Arnold / Bro Split</option>
-                  <option value="Full Body Routine">Full Body (3-Day)</option>
+                  <option value="Full Body Routine">Full Body Routine</option>
                 </select>
               </div>
 
@@ -194,13 +264,14 @@ export default function AiCoachPage() {
                 <label className="text-xs text-slate-400 block mb-1">Days Per Week</label>
                 <select
                   value={daysPerWeek}
-                  onChange={(e) => setDaysPerWeek(e.target.value)}
+                  onChange={(e) => setDaysPerWeek(Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                 >
-                  <option value="3">3 Days</option>
-                  <option value="4">4 Days</option>
-                  <option value="5">5 Days</option>
-                  <option value="6">6 Days</option>
+                  <option value={2}>2 Days</option>
+                  <option value={3}>3 Days</option>
+                  <option value={4}>4 Days</option>
+                  <option value={5}>5 Days</option>
+                  <option value={6}>6 Days</option>
                 </select>
               </div>
 
@@ -212,8 +283,8 @@ export default function AiCoachPage() {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                 >
                   <option value="Full Commercial Gym">Full Commercial Gym</option>
-                  <option value="Dumbbells & Bench Only">Dumbbells & Bench</option>
-                  <option value="Home / Calisthenics Bodyweight">Home / Bodyweight</option>
+                  <option value="Dumbbells & Bench Only">Dumbbells & Bench Only</option>
+                  <option value="Home / Calisthenics Bodyweight">Home / Bodyweight Only</option>
                 </select>
               </div>
 
@@ -224,9 +295,9 @@ export default function AiCoachPage() {
                   onChange={(e) => setFitnessLevel(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                 >
-                  <option value="Beginner">Beginner (Linear progression)</option>
-                  <option value="Intermediate">Intermediate (Wave periodization)</option>
-                  <option value="Advanced">Advanced (High volume / RPE)</option>
+                  <option value="Beginner">Beginner (Linear progression, RPE 7)</option>
+                  <option value="Intermediate">Intermediate (Wave periodization, RPE 8)</option>
+                  <option value="Advanced">Advanced (High volume / RPE 9-10)</option>
                 </select>
               </div>
             </div>
@@ -248,11 +319,11 @@ export default function AiCoachPage() {
                 <div>
                   <h3 className="text-xl font-black text-white">{workoutPlan.planName}</h3>
                   <div className="text-xs text-slate-400 mt-1">
-                    Split: {workoutPlan.splitType} • {workoutPlan.daysPerWeek} Days/Week
+                    Split: {workoutPlan.splitType} • {workoutPlan.daysPerWeek || daysPerWeek} Days/Week • {equipment}
                   </div>
                 </div>
                 <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                  Gemini Generated
+                  {geminiKey ? 'Gemini 2.5 Flash' : 'Calculated Routine'}
                 </span>
               </div>
 
@@ -307,7 +378,7 @@ export default function AiCoachPage() {
                 <input
                   type="number"
                   value={remainingCalories}
-                  onChange={(e) => setRemainingCalories(e.target.value)}
+                  onChange={(e) => setRemainingCalories(Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-amber-500"
                 />
               </div>
@@ -317,7 +388,7 @@ export default function AiCoachPage() {
                 <input
                   type="number"
                   value={minProtein}
-                  onChange={(e) => setMinProtein(e.target.value)}
+                  onChange={(e) => setMinProtein(Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-amber-500"
                 />
               </div>
@@ -329,10 +400,10 @@ export default function AiCoachPage() {
                   onChange={(e) => setDietaryPref(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
                 >
-                  <option value="Vegetarian">Vegetarian</option>
-                  <option value="High-Protein Omnivore">High-Protein (Chicken/Eggs/Fish)</option>
-                  <option value="Vegan">Vegan (Plant-based)</option>
-                  <option value="Low-Carb / Keto">Low-Carb / Keto</option>
+                  <option value="Vegetarian">Vegetarian (Paneer, Soya, Chana, Dal)</option>
+                  <option value="High-Protein Omnivore">High-Protein Omnivore (Chicken, Eggs, Fish)</option>
+                  <option value="Vegan">Vegan (Plant-based: Tofu, Soya, Millets)</option>
+                  <option value="Low-Carb / Keto">Low-Carb / Keto (High-Protein & Healthy Fats)</option>
                 </select>
               </div>
             </div>
@@ -355,7 +426,7 @@ export default function AiCoachPage() {
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        {meal.prepTimeMinutes || 10} mins prep
+                        {meal.prepTimeMinutes || 15} mins prep
                       </span>
                       <span className="font-mono text-sm font-bold text-amber-400">
                         {meal.totalCalories} kcal
@@ -429,9 +500,9 @@ export default function AiCoachPage() {
                   onChange={(e) => setRunLevel(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
                 >
-                  <option value="Beginner (Walk/Jog Intervals)">Beginner</option>
-                  <option value="Intermediate (Consistent 3K)">Intermediate</option>
-                  <option value="Advanced (Sub-25 min 5K)">Advanced</option>
+                  <option value="Beginner">Beginner (Walk/Jog Intervals)</option>
+                  <option value="Intermediate">Intermediate (Consistent Pace)</option>
+                  <option value="Advanced">Advanced (Lactate Threshold)</option>
                 </select>
               </div>
 
@@ -439,12 +510,12 @@ export default function AiCoachPage() {
                 <label className="text-xs text-slate-400 block mb-1">Duration (Weeks)</label>
                 <select
                   value={runWeeks}
-                  onChange={(e) => setRunWeeks(e.target.value)}
+                  onChange={(e) => setRunWeeks(Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
                 >
-                  <option value="4">4 Weeks</option>
-                  <option value="8">8 Weeks</option>
-                  <option value="12">12 Weeks</option>
+                  <option value={4}>4 Weeks</option>
+                  <option value={8}>8 Weeks</option>
+                  <option value={12}>12 Weeks</option>
                 </select>
               </div>
 
@@ -452,11 +523,12 @@ export default function AiCoachPage() {
                 <label className="text-xs text-slate-400 block mb-1">Runs Per Week</label>
                 <select
                   value={runDays}
-                  onChange={(e) => setRunDays(e.target.value)}
+                  onChange={(e) => setRunDays(Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
                 >
-                  <option value="3">3 Days</option>
-                  <option value="4">4 Days</option>
+                  <option value={2}>2 Days</option>
+                  <option value={3}>3 Days</option>
+                  <option value={4}>4 Days</option>
                 </select>
               </div>
             </div>
@@ -495,20 +567,56 @@ export default function AiCoachPage() {
 
       {/* TAB 4: AI FITNESS ASSISTANT CHATBOT */}
       {activeTab === 'chat' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl flex flex-col h-[650px] overflow-hidden">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl flex flex-col h-[700px] overflow-hidden">
           
           {/* Chat Header */}
-          <div className="p-4 border-b border-slate-800 flex items-center gap-3 bg-slate-950/40">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
-              <Bot className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-sm font-bold text-white">FitTrack AI Assistant</div>
-              <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Online • Grounded with your profile & calorie deficit targets
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white flex items-center gap-2">
+                  FitTrack AI Coach
+                  {geminiKey ? (
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      Gemini 2.5 Live
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30">
+                      Sports Intelligence Engine
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Grounded with your profile, joint biomechanics & calorie deficit targets
+                </div>
               </div>
             </div>
+
+            <button
+              onClick={() => setShowKeyModal(true)}
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition-all"
+            >
+              <Key className="w-3 h-3 text-amber-400" />
+              {geminiKey ? 'API Key Active' : 'API Key'}
+            </button>
+          </div>
+
+          {/* Quick Suggestion Chips */}
+          <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <span className="text-[11px] text-slate-500 whitespace-nowrap font-medium">Quick Prompts:</span>
+            {promptSuggestions.map((prompt, idx) => (
+              <button
+                key={idx}
+                onClick={() => sendChatMessage(prompt)}
+                disabled={loadingChat}
+                className="text-[11px] text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-full px-3 py-1 whitespace-nowrap transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
 
           {/* Chat Messages Log */}
@@ -524,7 +632,7 @@ export default function AiCoachPage() {
                   </div>
                 )}
                 <div
-                  className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                  className={`p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                     msg.sender === 'user'
                       ? 'bg-brand-600 text-white shadow-md'
                       : 'bg-slate-950/90 border border-slate-800 text-slate-200'
@@ -537,7 +645,7 @@ export default function AiCoachPage() {
             {loadingChat && (
               <div className="flex items-center gap-2 text-xs text-slate-400 italic">
                 <Sparkles className="w-3.5 h-3.5 animate-spin text-brand-400" />
-                FitTrack AI is formulating your fitness advice...
+                FitTrack AI Coach is formulating your personalized guidance...
               </div>
             )}
           </div>
@@ -548,7 +656,7 @@ export default function AiCoachPage() {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="e.g. My shoulder clicks during bench press, what can I substitute? Or suggest a 400 kcal snack..."
+              placeholder="e.g. Today my shoulder is paining, what should I substitute? Or suggest 40g veg protein..."
               className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
             />
             <button
@@ -560,6 +668,80 @@ export default function AiCoachPage() {
             </button>
           </form>
 
+        </div>
+      )}
+
+      {/* GEMINI API KEY MODAL */}
+      {showKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-white font-bold text-lg">
+                <Key className="w-5 h-5 text-amber-400" /> Configure Google Gemini API Key
+              </div>
+              <button
+                onClick={() => setShowKeyModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Connect your free Gemini API key to enable 100% unconstrained cloud AI generation with <strong>Gemini 2.5 Flash</strong>. Without a key, FitTrack automatically runs on its built-in certified sports science calculation engine.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-300 block">Gemini API Key</label>
+              <input
+                type="password"
+                value={inputKey}
+                onChange={(e) => setInputKey(e.target.value)}
+                placeholder="AIzaSy..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-brand-500"
+              />
+              <p className="text-[11px] text-slate-500">
+                Get a free key in 10 seconds from{' '}
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand-400 hover:underline"
+                >
+                  Google AI Studio (aistudio.google.com)
+                </a>. Your key stays private in your browser.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              {geminiKey ? (
+                <button
+                  type="button"
+                  onClick={handleRemoveKey}
+                  className="text-xs text-rose-400 hover:text-rose-300 font-semibold"
+                >
+                  Remove Key
+                </button>
+              ) : <div />}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowKeyModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveKey}
+                  className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-lg shadow-brand-500/20 transition-all"
+                >
+                  Save & Activate
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

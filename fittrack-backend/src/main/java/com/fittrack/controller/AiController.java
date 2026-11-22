@@ -25,6 +25,7 @@ public class AiController {
     @Operation(summary = "Generate a personalized gym workout routine with structured periodization")
     public ResponseEntity<String> generateWorkout(
             @AuthenticationPrincipal User user,
+            @RequestHeader(value = "X-Gemini-Api-Key", required = false) String customApiKey,
             @RequestBody WorkoutPlanRequest req
     ) {
         String split = req.splitType() != null ? req.splitType() : "PPL";
@@ -32,26 +33,28 @@ public class AiController {
         String equipment = req.equipment() != null ? req.equipment() : "Full Gym";
         String level = req.fitnessLevel() != null ? req.fitnessLevel() : "Intermediate";
 
-        return ResponseEntity.ok(geminiAiService.generateWorkoutPlan(split, days, equipment, level));
+        return ResponseEntity.ok(geminiAiService.generateWorkoutPlan(split, days, equipment, level, customApiKey));
     }
 
     @PostMapping(value = "/suggest-meals", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Suggest macro-compliant meals aligned with remaining daily calorie deficit and protein target")
     public ResponseEntity<String> suggestMeals(
             @AuthenticationPrincipal User user,
+            @RequestHeader(value = "X-Gemini-Api-Key", required = false) String customApiKey,
             @RequestBody MealSuggestionRequest req
     ) {
         double cals = req.remainingCalories() != null ? req.remainingCalories() : 500.0;
         double protein = req.minProteinGrams() != null ? req.minProteinGrams() : 25.0;
         String diet = req.dietaryPreference() != null ? req.dietaryPreference() : "High-Protein";
 
-        return ResponseEntity.ok(geminiAiService.suggestMeals(cals, protein, diet));
+        return ResponseEntity.ok(geminiAiService.suggestMeals(cals, protein, diet, customApiKey));
     }
 
     @PostMapping(value = "/generate-running-plan", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Generate structured running plan (2K, 5K, 10K, interval sessions)")
     public ResponseEntity<String> generateRunningPlan(
             @AuthenticationPrincipal User user,
+            @RequestHeader(value = "X-Gemini-Api-Key", required = false) String customApiKey,
             @RequestBody RunningPlanRequest req
     ) {
         String level = req.currentLevel() != null ? req.currentLevel() : "Beginner";
@@ -59,13 +62,14 @@ public class AiController {
         int weeks = req.weeksCount() != null ? req.weeksCount() : 4;
         int days = req.daysPerWeek() != null ? req.daysPerWeek() : 3;
 
-        return ResponseEntity.ok(geminiAiService.generateRunningPlan(level, goal, weeks, days));
+        return ResponseEntity.ok(geminiAiService.generateRunningPlan(level, goal, weeks, days, customApiKey));
     }
 
     @PostMapping("/assistant-chat")
     @Operation(summary = "Chat with FitTrack AI Assistant on exercise form, diet, recovery, and plateau busting")
     public ResponseEntity<AiTextResponse> chatAssistant(
             @AuthenticationPrincipal User user,
+            @RequestHeader(value = "X-Gemini-Api-Key", required = false) String customApiKey,
             @RequestBody ChatAssistantRequest req
     ) {
         String context = String.format(
@@ -75,7 +79,7 @@ public class AiController {
                 user.getActivityLevel()
         );
 
-        String reply = geminiAiService.chatFitnessAssistant(req.message(), context);
+        String reply = geminiAiService.chatFitnessAssistant(req.message(), context, customApiKey);
         return ResponseEntity.ok(new AiTextResponse(reply));
     }
 }

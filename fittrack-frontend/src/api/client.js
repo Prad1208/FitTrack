@@ -7,11 +7,15 @@ const api = axios.create({
   },
 });
 
-// Attach Bearer token to outgoing requests
+// Attach Bearer token and optional Gemini API Key to outgoing requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('fittrack_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  const geminiKey = localStorage.getItem('fittrack_gemini_key');
+  if (geminiKey && geminiKey.trim()) {
+    config.headers['X-Gemini-Api-Key'] = geminiKey.trim();
   }
   return config;
 }, (error) => Promise.reject(error));

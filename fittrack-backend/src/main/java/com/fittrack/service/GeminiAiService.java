@@ -575,7 +575,7 @@ public class GeminiAiService {
                 { "name": "Tricep Rope Pushdowns", "targetMuscle": "TRICEPS", "sets": 3, "repRange": "%s", "rpeTarget": 9, "restSeconds": 60, "formTip": "Flare rope outwards at bottom contraction." }
               ]
             }
-            """, chestPress, sets, repComp, rpe, repIso, rpe, shoulderPress, repComp, rpe, repIso);
+            """, chestPress, sets, repComp, rpe, repIso, rpe, shoulderPress, repComp, rpe, repIso));
 
             dayBlocks.add(String.format("""
             {
@@ -589,7 +589,7 @@ public class GeminiAiService {
                 { "name": "Hammer Curls", "targetMuscle": "BICEPS", "sets": 3, "repRange": "12-15", "rpeTarget": 9, "restSeconds": 60, "formTip": "Targets brachialis for thicker arm profile." }
               ]
             }
-            """, pullMove, sets, repComp, rpe, backRow, repIso, rpe, repIso);
+            """, pullMove, sets, repComp, rpe, backRow, repIso, rpe, repIso));
 
             dayBlocks.add(String.format("""
             {
