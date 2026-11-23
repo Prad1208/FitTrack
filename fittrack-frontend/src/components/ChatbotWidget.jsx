@@ -11,21 +11,26 @@ import {
   Dumbbell,
   Apple,
   Zap,
-  Minimize2
+  Key,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 const INITIAL_MESSAGE = {
   id: 'init-1',
   sender: 'ai',
-  text: "Hey! I'm your FitTrack AI Coach. I can help you with exercise form, Indian high-protein diet tips, shoulder/knee pain substitutions, workout routines, or breaking plateaus. What are you working on today?",
+  text: "Hey! I'm your FitTrack AI Coach. I can help you with specific muscle workouts (chest, back, arms, legs), Indian high-protein meal ideas, shoulder/knee pain substitutions, calorie deficits, or breaking plateaus. What are you working on today?",
   time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 };
 
 const QUICK_PROMPTS = [
+  { icon: Dumbbell, label: 'Chest Workout Routine', prompt: 'What is the best chest workout routine for muscle growth?' },
   { icon: Apple, label: 'High Protein Indian Veg', prompt: 'How to hit 100g protein on an Indian vegetarian diet?' },
   { icon: Dumbbell, label: 'Shoulder Pain Alternative', prompt: 'My shoulder hurts during bench press, what exercises can I substitute?' },
   { icon: Zap, label: 'Break Fat Loss Plateau', prompt: 'I have hit a weight loss plateau, what should I adjust?' },
-  { icon: Dumbbell, label: 'Knee Pain Squat Fix', prompt: 'Best exercises to replace squats if my knees hurt?' }
+  { icon: Dumbbell, label: 'Biceps & Triceps Growth', prompt: 'Best exercises and rep ranges to build bigger arms?' },
+  { icon: Apple, label: 'Calorie Deficit Math', prompt: 'How to calculate my calorie deficit and TDEE correctly?' },
+  { icon: Zap, label: 'Creatine & Water Dose', prompt: 'How much creatine and water should I drink daily?' }
 ];
 
 export default function ChatbotWidget() {
@@ -42,8 +47,19 @@ export default function ChatbotWidget() {
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Gemini API Key State
+  const [geminiKey, setGeminiKey] = useState('');
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const savedKey = localStorage.getItem('fittrack_gemini_key') || '';
+    setGeminiKey(savedKey);
+    setKeyInput(savedKey);
+  }, []);
 
   // Sync to session storage so switching tabs doesn't wipe conversation
   useEffect(() => {
@@ -62,6 +78,25 @@ export default function ChatbotWidget() {
       inputRef.current?.focus();
     }
   }, [messages, isOpen]);
+
+  const handleSaveKey = () => {
+    const trimmed = keyInput.trim();
+    if (trimmed) {
+      localStorage.setItem('fittrack_gemini_key', trimmed);
+      setGeminiKey(trimmed);
+    } else {
+      localStorage.removeItem('fittrack_gemini_key');
+      setGeminiKey('');
+    }
+    setShowKeyModal(false);
+  };
+
+  const handleRemoveKey = () => {
+    localStorage.removeItem('fittrack_gemini_key');
+    setGeminiKey('');
+    setKeyInput('');
+    setShowKeyModal(false);
+  };
 
   const handleSendMessage = async (msgText) => {
     const textToSend = typeof msgText === 'string' ? msgText : inputMessage;
@@ -98,7 +133,7 @@ export default function ChatbotWidget() {
       const errorMsg = {
         id: Date.now() + '-ai-err',
         sender: 'ai',
-        text: 'Sorry, I had trouble connecting to the FitTrack AI server. Please make sure the backend is running and try again!',
+        text: 'Sorry, I had trouble connecting to the FitTrack AI backend. Please verify your backend server is running and try again!',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -122,6 +157,7 @@ export default function ChatbotWidget() {
 
   // Helper to format bot markdown text cleanly
   const formatBotText = (text) => {
+    if (!text) return null;
     const lines = text.split('\n');
     return lines.map((line, idx) => {
       // Bold syntax regex **bold text**
@@ -191,8 +227,8 @@ export default function ChatbotWidget() {
         <div className="fixed bottom-5 right-5 z-50 w-[94vw] sm:w-[420px] h-[580px] max-h-[85vh] flex flex-col bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           
           {/* Header */}
-          <div className="px-4 py-3.5 bg-slate-800/90 border-b border-slate-700/80 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="px-4 py-3 bg-slate-800/95 border-b border-slate-700/80 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
               <div className="relative">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
                   <Bot className="w-5 h-5" />
@@ -201,17 +237,32 @@ export default function ChatbotWidget() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-sm font-bold text-white tracking-tight">FitTrack AI Coach</h3>
-                  <span className="px-1.5 py-0.5 text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded">
-                    LIVE
+                  <h3 className="text-xs font-bold text-white tracking-tight">FitTrack AI Coach</h3>
+                  <span className={`px-1.5 py-0.2 text-[9px] font-semibold border rounded ${
+                    geminiKey 
+                      ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' 
+                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                  }`}>
+                    {geminiKey ? 'GEMINI 2.5' : 'SPORTS AI'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400">Context-aware fitness & nutrition assistant</p>
+                <p className="text-[10px] text-slate-400">Context-aware fitness & nutrition assistant</p>
               </div>
             </div>
 
             {/* Header Controls */}
             <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowKeyModal(!showKeyModal)}
+                title={geminiKey ? "Gemini Key Configured" : "Add Free Gemini API Key"}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  geminiKey 
+                    ? 'text-indigo-400 hover:bg-indigo-500/10' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/60'
+                }`}
+              >
+                <Key className="w-4 h-4" />
+              </button>
               <button
                 onClick={clearChat}
                 title="Clear Conversation"
@@ -229,8 +280,47 @@ export default function ChatbotWidget() {
             </div>
           </div>
 
+          {/* Quick API Key Modal Dropdown */}
+          {showKeyModal && (
+            <div className="p-3 bg-slate-950 border-b border-slate-800 text-xs space-y-2 animate-in slide-in-from-top-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-white flex items-center gap-1.5 text-[11px]">
+                  <Key className="w-3.5 h-3.5 text-indigo-400" />
+                  Gemini API Key (Optional)
+                </span>
+                <span className="text-[10px] text-slate-400">Stored locally</span>
+              </div>
+              <p className="text-[10px] text-slate-400">
+                FitTrack provides instant Sports Science answers for free. To enable infinite generative AI, paste a free key from Google AI Studio.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  placeholder="AIzaSy..."
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  className="flex-1 bg-slate-900 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+                <button
+                  onClick={handleSaveKey}
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold"
+                >
+                  Save
+                </button>
+                {geminiKey && (
+                  <button
+                    onClick={handleRemoveKey}
+                    className="px-2 py-1.5 bg-slate-800 hover:bg-rose-900/50 text-rose-400 border border-slate-700 rounded-lg text-xs"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Quick Prompts Bar */}
-          <div className="px-3 py-2 bg-slate-950/60 border-b border-slate-800/80 overflow-x-auto scrollbar-none flex items-center gap-2">
+          <div className="px-3 py-2 bg-slate-950/70 border-b border-slate-800/80 overflow-x-auto scrollbar-none flex items-center gap-2">
             {QUICK_PROMPTS.map((qp, i) => {
               const Icon = qp.icon;
               return (
@@ -262,7 +352,7 @@ export default function ChatbotWidget() {
                     </div>
                   )}
 
-                  <div className={`max-w-[82%] flex flex-col ${isAi ? 'items-start' : 'items-end'}`}>
+                  <div className={`max-w-[85%] flex flex-col ${isAi ? 'items-start' : 'items-end'}`}>
                     <div
                       className={`px-3.5 py-2.5 rounded-2xl shadow-sm text-xs leading-relaxed ${
                         isAi
@@ -287,7 +377,7 @@ export default function ChatbotWidget() {
                   <Bot className="w-4 h-4" />
                 </div>
                 <div className="bg-slate-800/90 border border-slate-700/70 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1.5 text-slate-400">
-                  <span className="text-[11px] text-slate-400 mr-1">FitTrack AI is thinking</span>
+                  <span className="text-[11px] text-slate-400 mr-1">FitTrack AI is generating response</span>
                   <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                   <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"></div>
@@ -330,7 +420,7 @@ export default function ChatbotWidget() {
               <span>Personalized with your daily targets</span>
               <span className="text-emerald-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                AI Active
+                {geminiKey ? 'Gemini AI Active' : 'Sports Engine Active'}
               </span>
             </div>
           </div>

@@ -207,179 +207,341 @@ public class GeminiAiService {
     }
 
     /**
-     * Comprehensive Sports Science Conversational Intelligence Engine (25+ intents & multi-turn contextual reasoning).
+     * Comprehensive Sports Science Conversational Intelligence Engine (28+ distinct intents, zero repetitive fallbacks).
      */
     private String buildDynamicChatResponse(String message, String userContext) {
         String q = message != null ? message.toLowerCase().trim() : "";
 
-        // 1. Shoulder Pain / Rotator Cuff / Pressing Discomfort
-        if (q.contains("shoulder") || q.contains("rotator") || (q.contains("bench") && (q.contains("pain") || q.contains("hurt") || q.contains("click")))) {
-            return "I hear you, and shoulder discomfort during lifting needs immediate proactive management:\n\n" +
-                    "1. **Stop Pain Aggravators Immediately**:\n" +
-                    "   • Cease flat barbell bench pressing and straight overhead barbell presses. When the shoulder is abducted at 90° and internally rotated, the supraspinatus tendon pinches against the acromion process (subacromial impingement).\n\n" +
-                    "2. **Safe, Highly Stimulating Substitutions**:\n" +
-                    "   • **Neutral-Grip Dumbbell Floor Press**: With palms facing each other and elbows at 45°, the floor physically stops humeral extension past the torso, relieving anterior capsule stress while heavily loading the chest.\n" +
-                    "   • **Low-Incline (30°) Dumbbell Press**: Semi-tucked elbows provide massive chest recruitment with significantly less shoulder shear than flat pressing.\n" +
-                    "   • **Landmine Press**: Pressing along a diagonal arc allows the scapula to rotate upward freely and naturally.\n" +
-                    "   • **Scapular Plane Cable Lateral Raises ('Scaption')**: Perform lateral raises 30° forward of the coronal plane. It targets the lateral deltoid without pinching the rotator cuff.\n\n" +
-                    "3. **Rotator Cuff Rehab & Warm-Up**:\n" +
-                    "   • 2x15 Cable Face Pulls with external rotation (pull towards eyes, hands finish higher than elbows).\n" +
-                    "   • 2x15 Band Pull-Aparts.\n\n" +
-                    "4. **Medical Caution**: If you experience sharp, shooting pain, numbness down your fingers, or cannot raise your arm above horizontal, rest and consult a sports physiotherapist.";
+        // 1. Greetings & Bot Introduction
+        if (q.matches(".*\\b(hi|hello|hey|namaste|greetings|good morning|good evening|good afternoon|sup|yo)\\b.*")
+                || q.equals("hi") || q.equals("hello") || q.equals("hey") || q.contains("who are you") || q.contains("what can you do")) {
+            return "Hey there! I am your FitTrack AI Coach. I'm here to help you dial in your training, nutrition, and daily recovery.\n\n" +
+                    (userContext != null && !userContext.isEmpty() ? "**Your Active Stats**: " + userContext + "\n\n" : "") +
+                    "Here are things you can ask me:\n" +
+                    "• **Muscle Workouts**: Chest, Back, Arms, Delts, Legs, or Core routines & form cues\n" +
+                    "• **Nutrition & Indian Foods**: High-protein vegetarian & non-vegetarian meal plans\n" +
+                    "• **Fat Loss & Bulking**: Calorie deficit calculations, TDEE, macros, and breaking plateaus\n" +
+                    "• **Pain Substitutions**: Alternatives for shoulder, knee, lower back, or elbow discomfort\n" +
+                    "• **Supplements & Hydration**: Creatine timing, whey protein, water intake, and rest days\n\n" +
+                    "What would you like to work on right now?";
         }
 
-        // 2. Follow-Up: "so what can i do", "what should i do", "what next", "how to proceed"
-        if (q.contains("what can i do") || q.contains("what should i do") || q.contains("what next") || q.contains("how to start") || q.contains("what to do") || q.contains("advice")) {
-            return "Here is your clear, actionable 4-step recovery & workout game plan:\n\n" +
-                    "1. **Pivot Today's Gym Session**: Do not stay idle, but do not push through joint pain. Swap today to **Lower Body** (Squats, Romanian Deadlifts, Hamstring Curls, Calves) or a dedicated **Zone 2 Cardio & Core session** (30 mins brisk incline walk + planks).\n\n" +
-                    "2. **Targeted Relief**: If there is acute inflammation or heat, apply an ice pack for 15 minutes. If it feels like stiff, guarded muscle tightness, use warm compression to restore blood flow.\n\n" +
-                    "3. **Nutritional Repair**: High-quality protein provides the essential amino acids needed for collagen and tissue synthesis. Include anti-inflammatory staples like turmeric milk (*haldi doodh* with black pepper), walnuts (omega-3s), and drink 3.5 liters of water.\n\n" +
-                    "4. **Gentle Pendulum Swings**: Lean forward with your good hand on a table, letting your affected arm hang loosely. Make gentle circular swings for 60 seconds to lubricate the joint capsule with synovial fluid without muscular exertion.";
+        // 2. Personal Profile / Stats / Calorie Targets
+        if ((q.contains("my") && (q.contains("weight") || q.contains("calorie") || q.contains("target") || q.contains("profile") || q.contains("goal") || q.contains("stat")))
+                || q.contains("how many calories should i") || q.contains("how much should i eat")) {
+            return "Here is your profile breakdown based on your FitTrack setup:\n\n" +
+                    (userContext != null && !userContext.isEmpty() ? "• **Active Stats**: " + userContext + "\n\n" : "") +
+                    "1. **Calorie Deficit / Surplus**: Follow your target daily calories precisely. Weigh foods raw with a kitchen scale to eliminate tracking errors.\n" +
+                    "2. **Protein Target**: Hit ~1.8g to 2.2g of protein per kg of bodyweight to maintain lean mass while stripping body fat.\n" +
+                    "3. **Weekly Progress Metric**: Weigh yourself every morning under identical conditions (fasted, post-restroom). Compare 7-day rolling averages instead of day-to-day fluctuations.\n" +
+                    "4. **Adjustments**: If your weight stalls for more than 14 consecutive days, trim 100-150 kcal or increase your daily step count by 2,000 steps.";
         }
 
-        // 3. Knee Pain / Patellofemoral / Squat Discomfort
-        if (q.contains("knee") || (q.contains("squat") && (q.contains("pain") || q.contains("hurt")))) {
-            return "For knee or patellar discomfort during leg sessions:\n\n" +
-                    "1. **Root Cause**: Excessive forward knee translation under heavy loads increases patellofemoral contact pressure.\n" +
-                    "2. **Exercise Substitutions**:\n" +
-                    "   • **Box Squats**: Sitting back onto a parallel box forces vertical shins, immediately transferring load from the knee joint to the glutes and hamstrings.\n" +
-                    "   • **Romanian Deadlifts (RDLs)**: Zero knee shear; heavily develops the posterior chain.\n" +
-                    "   • **Reverse Lunges**: Stepping backward drastically reduces patellar shearing compared to forward lunges.\n" +
-                    "   • **Hamstring Curls & Sled Drags**: Walking backwards with light resistance builds knee joint resilience.\n" +
-                    "3. **Check Ankle Mobility**: Restricted ankle dorsiflexion causes feet to pronate and knees to collapse inward (valgus). Mobilize your calves and ankles before squatting.";
+        // 3. Shoulder Pain / Rotator Cuff / Impingement
+        if (q.contains("shoulder") && (q.contains("pain") || q.contains("hurt") || q.contains("click") || q.contains("pinch") || q.contains("ache") || q.contains("injury"))) {
+            return "Managing shoulder discomfort during pressing sessions:\n\n" +
+                    "1. **Stop Pain Triggers**: Pause flat barbell bench press and behind-the-neck presses immediately. Straight 90° abduction pinches the supraspinatus tendon against the acromion (subacromial impingement).\n" +
+                    "2. **Pain-Free Substitutions**:\n" +
+                    "   • **Neutral-Grip Dumbbell Floor Press**: Palms face each other with elbows at 45°. The floor stops excessive humeral extension past your torso, removing anterior capsule strain while heavily loading the pecs.\n" +
+                    "   • **Low-Incline (30°) Dumbbell Press**: Easier on the glenohumeral joint than flat pressing.\n" +
+                    "   • **Landmine Chest Press**: The upward diagonal arc allows natural scapular upward rotation.\n" +
+                    "   • **Scapular Plane Lateral Raises ('Scaption')**: Raise dumbbells 30° forward of the coronal plane.\n" +
+                    "3. **Pre-Hab Warmup**: 2 sets of 15 Cable Face Pulls (with external rotation) + Band Pull-Aparts before lifting.";
         }
 
-        // 4. Lower Back Pain / Lumbar Strain
-        if (q.contains("back") && (q.contains("pain") || q.contains("hurt") || q.contains("sore") || q.contains("strain"))) {
+        // 4. Knee Pain / Squat Substitutions / Patellofemoral Discomfort
+        if (q.contains("knee") || (q.contains("squat") && (q.contains("pain") || q.contains("hurt") || q.contains("injury")))) {
+            return "Resolving knee or patellar discomfort during leg day:\n\n" +
+                    "1. **Primary Cause**: Forward knee translation combined with tight ankles creates high shear force at the patellar tendon.\n" +
+                    "2. **Safe, Highly Effective Substitutions**:\n" +
+                    "   • **Box Squats**: Sitting back onto a box forces vertical shins, immediately shifting load from knees to glutes and hamstrings.\n" +
+                    "   • **Romanian Deadlifts (RDLs)**: Near-zero knee flexion; massive posterior chain stimulus.\n" +
+                    "   • **Reverse Lunges**: Stepping backward produces ~40% less patellofemoral shear than forward lunges.\n" +
+                    "   • **Backward Sled Drags**: Walking backward under light load pumps synovial fluid into the knees and strengthens the vastus medialis (VMO).\n" +
+                    "3. **Check Ankle Mobility**: Foam roll your calves and stretch the soleus to prevent knees caving inward (valgus).";
+        }
+
+        // 5. Lower Back Pain / Lumbar Strain / Deadlift Discomfort
+        if (q.contains("back") && (q.contains("pain") || q.contains("hurt") || q.contains("strain") || q.contains("sore") || q.contains("spasm") || q.contains("injury"))) {
             return "Lower back fatigue and lumbar strain management:\n\n" +
-                    "1. **De-load Spinal Compression**: Pause conventional barbell deadlifts, heavy back squats, and bent-over barbell rows until symptoms subside.\n" +
-                    "2. **Back-Friendly Alternatives**:\n" +
-                    "   • **Chest-Supported Dumbbell Rows**: Fully engages the lats, rhomboids, and rear delts with zero lower back strain.\n" +
-                    "   • **Leg Press (Controlled)**: Keeps your lumbar spine firmly supported against the back pad (avoid letting your pelvis tuck/round at the bottom).\n" +
-                    "   • **Bulgarian Split Squats**: Massive quad and glute hypertrophy with half the axial load.\n" +
-                    "3. **McGill Big 3 Core Bracing**: Perform Bird-Dogs, Side Planks, and Modified Curl-ups daily to build 360-degree spinal stiffness.";
+                    "1. **De-load Spinal Compression**: Pause heavy conventional deadlifts and back squats until acute discomfort clears.\n" +
+                    "2. **Spine-Spared Muscle Builders**:\n" +
+                    "   • **Chest-Supported Dumbbell Rows**: Maximum lat, rhomboid, and rear delt engagement with zero shear force on the lumbar spine.\n" +
+                    "   • **Bulgarian Split Squats**: Massive quad and glute stimulus with half the total spinal load.\n" +
+                    "   • **Leg Press (Controlled)**: Keep your lower back firmly pressed into the pad; never let your pelvis curl up (butt wink) at the bottom.\n" +
+                    "3. **The McGill Big 3 for Core Stiffness**: Perform Bird-Dogs, Side Planks, and Modified Curl-ups daily to build 360° spinal stability.";
         }
 
-        // 5. Elbow / Tricep Tendonitis / Golfer's or Tennis Elbow
-        if (q.contains("elbow") || q.contains("tendon") || (q.contains("curl") && q.contains("pain"))) {
-            return "For elbow pain or tricep/bicep tendon discomfort:\n\n" +
-                    "1. **Avoid Heavy Straight Barbells**: Straight-bar curls and straight-bar skullcrushers force your forearms into extreme supination/pronation.\n" +
+        // 6. Elbow & Wrist Pain / Tendonitis
+        if ((q.contains("elbow") || q.contains("wrist")) && (q.contains("pain") || q.contains("hurt") || q.contains("tendon") || q.contains("ache"))) {
+            return "Addressing elbow and wrist tendon discomfort:\n\n" +
+                    "1. **Avoid Rigid Barbells**: Straight-bar bicep curls and straight skullcrushers force wrists and forearms into unnatural extreme angles.\n" +
                     "2. **Substitutions**:\n" +
-                    "   • Switch to **Neutral-Grip Dumbbell Hammer Curls** or **Rope Cable Curls**.\n" +
-                    "   • For triceps, use **Cable Rope Pushdowns** or **Cross-Body Cable Extensions** instead of heavy free-weight skullcrushers.\n" +
-                    "3. **Warm Up Forearms**: Perform light wrist flexor and extensor curls with a 2-3kg dumbbell before heavy pressing or pulling.";
+                    "   • **Neutral-Grip Dumbbell Hammer Curls**: Transfers load to the brachialis and radialis with zero wrist strain.\n" +
+                    "   • **Cross-Body Cable Tricep Extensions**: Far superior to skullcrushers for elbow comfort.\n" +
+                    "   • **EZ-Curl Bar**: The angled grips eliminate torque on the medial epicondyle (Golfer's/Tennis elbow).\n" +
+                    "3. **Wrist Curls & Extensors**: Do light 2-3kg dumbbell wrist curls to strengthen the forearm flexor tendons.";
         }
 
-        // 6. Indian Vegetarian High Protein Strategies
-        if (q.contains("veg") || q.contains("paneer") || q.contains("soya") || q.contains("dal") || q.contains("chana") || q.contains("sattu")) {
-            return "Maximizing protein intake on an Indian vegetarian diet while staying in a calorie deficit:\n\n" +
-                    "1. **Soya Chunks (Nutrela)**: 52g protein per 100g dry. A 50g dry serving provides **26g protein for only 172 kcal** — unbeatable calorie-to-protein ratio!\n" +
-                    "2. **Low-Fat Paneer**: 25g protein with under 2.5g fat per 100g (~160 kcal), compared to 265 kcal in regular full-fat paneer.\n" +
-                    "3. **Moong Dal & Besan Chillas**: Stuff with 50g grated paneer for an easy 20g+ protein breakfast.\n" +
-                    "4. **Kala Chana & Sprouted Moong**: 9g protein and 8g fiber per 100g boiled. The fiber stabilizes blood sugar and keeps you full for hours.\n" +
-                    "5. **Sattu (Roasted Gram Flour)**: 23g protein per 100g; mix with water, jeera, and lemon for a nutrient-packed protein beverage.\n" +
-                    "6. **Pro Tip**: Complement lentils with millets (bajra, jowar, ragi) for complete essential amino acid profiles, and consider 1 scoop of Whey Isolate (25g protein, 120 kcal) to easily hit 100g+ daily.";
+        // 7. Chest / Pectorals / Bench Press / Push Day
+        if (q.contains("chest") || q.contains("pecs") || q.contains("pectoral") || q.contains("push day")
+                || (q.contains("bench") && !q.contains("pain")) || q.contains("pushup") || q.contains("push up") || q.contains("dips")) {
+            return "Complete Science-Based Chest Workout Guide:\n\n" +
+                    "1. **Upper Clavicular Head (Creates the 'Full' Look)**:\n" +
+                    "   • **30° Incline Dumbbell Press**: 3-4 sets x 6-10 reps (RPE 8). Keep incline modest (30°); steep angles shift work to front delts.\n\n" +
+                    "2. **Mid Sternal Head (Raw Thickness & Power)**:\n" +
+                    "   • **Flat Barbell or Dumbbell Bench Press**: 3-4 sets x 6-8 reps. Arch slightly, retract scapulae, and tuck elbows to 45°.\n\n" +
+                    "3. **Lower Pectorals & Stretch**:\n" +
+                    "   • **Weighted or Bodyweight Dips**: Lean forward at 30° to target pecs rather than triceps.\n" +
+                    "   • **Cable Crossovers (High-to-Low)**: 3 sets x 12-15 reps. Squeeze hard at the peak contraction for maximum metabolic burn.\n\n" +
+                    "4. **Form Tip**: Lower the weight over 2-3 seconds for maximum mechanical tension and stretch under load.";
         }
 
-        // 7. Non-Vegetarian High Protein Strategies
-        if (q.contains("non-veg") || q.contains("chicken") || q.contains("egg") || q.contains("fish") || q.contains("meat")) {
-            return "Top non-vegetarian staples for lean muscle building and calorie deficits:\n\n" +
-                    "1. **Chicken Breast (Skinless Boneless)**: 31g protein per 100g (only 165 kcal). Season with ginger-garlic, turmeric, and cumin; cook as Tandoori Tikka, shredded curry, or air-fry.\n" +
-                    "2. **Eggs & Egg Whites**: 1 whole egg (~6g protein, 70 kcal) paired with 4 egg whites (~14g protein, 68 kcal) yields a delicious 20g protein scramble for under 140 kcal!\n" +
-                    "3. **Fish (Rohu, Katla, Surmai, Pomfret)**: 18-21g lean protein per 100g, packed with anti-inflammatory Omega-3 fatty acids for joint recovery and heart health.\n" +
-                    "4. **Lean Minced Mutton (Keema)**: Cooked with peas and whole spices for a high-iron, vitamin B12-dense meal.";
+        // 8. Back / Lats / Pull Day / Rows / V-Taper
+        if ((q.contains("back") && !q.contains("pain")) || q.contains("lat") || q.contains("pullup") || q.contains("pull up")
+                || q.contains("chinup") || q.contains("chin up") || q.contains("pulldown") || q.contains("rowing")
+                || q.contains("barbell row") || q.contains("pull day") || q.contains("v-taper") || q.contains("traps")) {
+            return "Science-Based Back & Lat Hypertrophy Guide:\n\n" +
+                    "1. **Lat Width (The V-Taper)**:\n" +
+                    "   • **Neutral-Grip Lat Pulldown or Weighted Pull-ups**: 3-4 sets x 6-10 reps. Drive elbows down into your pockets; don't pull with forearms.\n" +
+                    "   • **Single-Arm Dumbbell Row or Ilio-Lumbar Cable Row**: Keeps tension purely on the lower lat fibers.\n\n" +
+                    "2. **Mid-Back & Upper Back Thickness (Rhomboids & Mid Traps)**:\n" +
+                    "   • **Chest-Supported T-Bar / DB Row**: 3 sets x 8-12 reps with flared elbows (60°) to heavily load upper back without spinal shear.\n" +
+                    "   • **Face Pulls**: 3 sets x 15 reps for rear delts and lower traps.\n\n" +
+                    "3. **Lower Back & Posterior Chain**:\n" +
+                    "   • **Romanian Deadlifts (RDLs)**: 3 sets x 8 reps for erector spinae, glutes, and hamstrings.\n\n" +
+                    "4. **Execution Cue**: Think of your hands purely as hooks—initiate every pull by retracting your shoulder blades and driving your elbows.";
         }
 
-        // 8. Calorie Deficit & TDEE Science
-        if (q.contains("deficit") || q.contains("lose weight") || q.contains("fat loss") || q.contains("cut") || q.contains("tdee") || q.contains("bmr")) {
-            return "The science of sustainable calorie deficits:\n\n" +
-                    "1. **The Math**: 1 kg of stored adipose tissue represents roughly 7,700 kcal. A moderate daily deficit of **300 to 500 kcal** below your TDEE yields a safe, sustainable fat loss rate of **0.4 to 0.5 kg per week** without muscle wasting.\n" +
-                    "2. **Preserving Lean Mass**: Keep protein between **1.8 to 2.2g per kg of bodyweight**.\n" +
-                    "3. **NEAT (Non-Exercise Activity Thermogenesis)**: Walking 8,000 to 10,000 steps daily contributes more to fat loss than grueling cardio, without spiking hunger hormones like ghrelin.\n" +
-                    "4. **Avoid Double-Counting**: If your TDEE formula already factors in moderate activity, do not add exercise calories back into your daily food allowance.";
+        // 9. Arms: Biceps & Triceps Hypertrophy
+        if (q.contains("bicep") || q.contains("tricep") || q.contains("arm") || q.contains("arms")
+                || q.contains("curl") || q.contains("skullcrusher") || q.contains("pushdown") || q.contains("hammer curl")) {
+            return "Complete Arm Hypertrophy Protocol (Biceps & Triceps):\n\n" +
+                    "1. **Triceps (65% of Total Arm Mass)**:\n" +
+                    "   • **Long Head (Stretch Position)**: **Overhead Cable Rope Extension** (3 sets x 10-12 reps). The long head only fully stretches when arms are overhead!\n" +
+                    "   • **Lateral & Medial Head**: **Cable Straight-Bar Pushdowns** (3 sets x 10-12 reps). Lock elbows at your ribs and flare slightly at the bottom.\n\n" +
+                    "2. **Biceps (Full Peak & Width)**:\n" +
+                    "   • **Long Head**: **Incline Dumbbell Curls** (3 sets x 8-10 reps). Incline bench places biceps in a deep stretch behind the body.\n" +
+                    "   • **Short Head & Peak**: **Preacher Curls or Cable Curls** (3 sets x 10-12 reps).\n" +
+                    "   • **Brachialis & Forearm Thickness**: **Cross-Body Hammer Curls** (3 sets x 10-12 reps). Pushes the biceps upward for greater overall arm circumference.\n\n" +
+                    "3. **Frequency**: Train arms 2x weekly with 10-14 total sets per week for optimal growth.";
         }
 
-        // 9. Bulking & Clean Muscle Building
-        if (q.contains("bulk") || q.contains("gain muscle") || q.contains("surplus") || q.contains("hypertrophy") || q.contains("mass")) {
-            return "Clean bulking without excessive fat gain:\n\n" +
-                    "1. **Caloric Surplus**: Maintain a conservative **200 to 300 kcal surplus** above TDEE. Muscle synthesis is an energy-intensive process, but excess calories past 300 kcal simply convert to adipose tissue.\n" +
-                    "2. **Progressive Overload**: Strive to add weight, reps, or improve execution cadence on your compound lifts each week.\n" +
-                    "3. **Macro Split**: 2.0g protein/kg, 1.0g healthy fats/kg, and fill remaining calories with nutrient-dense complex carbs (oats, brown basmati rice, rotis, sweet potatoes) to power intense gym sessions.\n" +
-                    "4. **Recovery Window**: Allow 48-72 hours before training the same muscle group again.";
+        // 10. Shoulders & Delts (Development & Routine)
+        if (q.contains("shoulder") || q.contains("delt") || q.contains("overhead press")
+                || q.contains("lateral raise") || q.contains("military press") || q.contains("face pull")) {
+            return "3D Deltoid Growth Strategy (Anterior, Lateral & Rear Heads):\n\n" +
+                    "1. **Lateral Delts (Creates Shoulder Width)**:\n" +
+                    "   • **Cable Lateral Raises**: 4 sets x 12-15 reps. Cables maintain uniform tension at the bottom where dumbbells provide zero resistance.\n" +
+                    "   • **Execution Cue**: Raise dumbbells in the scapular plane (30° forward of your sides) with hands angled slightly downward (like pouring a jug).\n\n" +
+                    "2. **Rear Delts (Posture & 3D Roundness)**:\n" +
+                    "   • **Reverse Pec-Deck Flyes**: 3 sets x 15 reps. Keep arms straight and lead with elbows.\n" +
+                    "   • **Cable Face Pulls with External Rotation**: 3 sets x 15 reps.\n\n" +
+                    "3. **Front Delts (Overhead Strength)**:\n" +
+                    "   • **Seated Dumbbell Overhead Press**: 3 sets x 6-8 reps. Heavy incline and flat benching already heavily stimulate front delts, so 3-4 sets of direct pressing per week is plenty.";
         }
 
-        // 10. Breaking Plateaus (Lifting or Weight Loss)
-        if (q.contains("plateau") || q.contains("stuck") || q.contains("not losing") || q.contains("progressive overload")) {
-            return "How to break through fitness plateaus:\n\n" +
-                    "1. **Gym Strength Plateau**:\n" +
-                    "   • **The 2-for-2 Rule**: If you can perform 2 extra reps beyond your target on your final set for 2 consecutive workouts, increase load by 1.25kg to 2.5kg.\n" +
-                    "   • **Eccentric Tempo**: Slow down the lowering phase to 3 seconds to increase mechanical tension without adding weight.\n" +
-                    "   • **1-Week Deload**: Drop total training volume by 50% for 7 days to clear accumulated central nervous system (CNS) fatigue.\n\n" +
-                    "2. **Weight Loss Plateau**:\n" +
-                    "   • **Metabolic Adaptation**: As you drop weight, your BMR drops proportionally. Recalculate your TDEE for your new weight.\n" +
-                    "   • **Audit Hidden Calories**: Measure cooking oil, ghee, and milk/sugar in tea with a digital kitchen scale.";
+        // 11. Legs: Quads, Hamstrings, Glutes & Calves
+        if (q.contains("leg") || q.contains("quad") || q.contains("hamstring") || q.contains("glute")
+                || q.contains("calf") || q.contains("calves") || q.contains("leg press") || q.contains("lunge")
+                || q.contains("squat") || q.contains("leg day")) {
+            return "Complete Lower Body Architecture (Leg Day):\n\n" +
+                    "1. **Quads (Knee Flexion Hypertrophy)**:\n" +
+                    "   • **Barbell Back Squat or Hack Squat**: 3-4 sets x 6-8 reps. Focus on deep knee flexion and controlled descent.\n" +
+                    "   • **Leg Extensions**: 3 sets x 12-15 reps with a 1-second pause at peak extension.\n\n" +
+                    "2. **Hamstrings (Hip Extension & Knee Flexion)**:\n" +
+                    "   • **Romanian Deadlifts (RDLs)**: 3-4 sets x 8 reps. Push hips back as far as possible until you feel a deep hamstring stretch.\n" +
+                    "   • **Seated Leg Curls**: 3 sets x 10-12 reps (research shows seated curls produce superior hypertrophy over lying curls).\n\n" +
+                    "3. **Glutes & Single-Leg Stability**:\n" +
+                    "   • **Bulgarian Split Squats**: 3 sets x 8-10 reps per leg.\n\n" +
+                    "4. **Calves**:\n" +
+                    "   • **Standing Calf Raises**: 3 sets x 12-15 reps with a 2-second stretch at the bottom to target the gastrocnemius.";
         }
 
-        // 11. Creatine Monohydrate
+        // 12. Abs, Core, Belly Fat & Spot Reduction
+        if (q.contains("abs") || q.contains("core") || q.contains("six pack") || q.contains("belly")
+                || q.contains("tummy") || q.contains("love handles") || q.contains("plank") || q.contains("crunch") || q.contains("spot reduce")) {
+            return "The Science of Visible Abs & Core Development:\n\n" +
+                    "1. **The Spot Reduction Myth**: You cannot burn fat exclusively from your belly by doing crunches. Fat loss is systemic and controlled entirely by an overall calorie deficit.\n" +
+                    "2. **Body Fat Percentages for Visibility**:\n" +
+                    "   • Men: Abs become visibly defined between **10% to 12% body fat**.\n" +
+                    "   • Women: Abs appear between **18% to 20% body fat**.\n" +
+                    "3. **Direct Hypertrophy for Thicker Abs**:\n" +
+                    "   • **Hanging Leg / Knee Raises**: 3 sets x 12-15 reps. Focus on posterior pelvic tilt (curling your pelvis up toward your chest, not just swinging legs).\n" +
+                    "   • **Cable Kneeling Crunches**: 3 sets x 12-15 reps with progressive overload.\n" +
+                    "   • **Planks / Ab-Wheel Rollouts**: 3 sets for deep transverse abdominis bracing.";
+        }
+
+        // 13. Indian Vegetarian Diet & High Protein
+        if (q.contains("veg") || q.contains("paneer") || q.contains("soya") || q.contains("soy")
+                || q.contains("dal") || q.contains("chana") || q.contains("sattu") || q.contains("tofu")
+                || q.contains("besan") || q.contains("makhana") || q.contains("sprouts")) {
+            return "Hitting 100g to 130g Protein on an Indian Vegetarian Diet (in a Calorie Deficit):\n\n" +
+                    "1. **Soya Chunks (Nutrela)**: 52g protein per 100g dry. A 50g dry portion gives **26g protein for only 172 kcal**—the best protein-to-calorie ratio in Indian food!\n" +
+                    "2. **Low-Fat Paneer**: 25g protein per 100g (~160 kcal). Swapping regular full-fat paneer (265 kcal) saves over 100 calories per 100g.\n" +
+                    "3. **Moong Dal & Besan Chillas**: Blend sprouted moong dal with green chilies, spread on tawa, and stuff with 50g grated paneer for an easy 20g+ protein breakfast.\n" +
+                    "4. **Kala Chana (Boiled / Chaat)**: 9g protein + 8g gut-friendly dietary fiber per 100g boiled. Keeps you satiated for hours.\n" +
+                    "5. **Sattu (Roasted Chana Flour)**: 23g protein per 100g. Mix 40g sattu in cold water with roasted jeera and lemon for a cooling 9g protein drink.\n" +
+                    "6. **Pro Tip**: Complement lentils with bajra, jowar, or ragi rotis for complete amino acid profiles, and take 1 scoop of Whey Protein (~25g protein, 120 kcal) to effortlessly reach 120g daily.";
+        }
+
+        // 14. Indian Non-Vegetarian High Protein
+        if (q.contains("non-veg") || q.contains("non veg") || q.contains("chicken") || q.contains("egg")
+                || q.contains("fish") || q.contains("mutton") || q.contains("meat") || q.contains("keema") || q.contains("tandoori")) {
+            return "Top Indian Non-Vegetarian Staples for Lean Muscle & Fat Loss:\n\n" +
+                    "1. **Chicken Breast (Skinless Boneless)**: 31g protein per 100g for only 165 kcal. Marinate in curd, ginger-garlic paste, kasuri methi, and tandoori spices; cook in an air-fryer, pan, or oven.\n" +
+                    "2. **The Whole Egg + Egg Whites Strategy**: 1 whole egg (6g protein, 70 kcal) paired with 4 liquid egg whites (14g protein, 68 kcal) yields a massive 20g protein scramble for under 140 calories!\n" +
+                    "3. **Fish (Rohu, Katla, Surmai, Pomfret)**: 18-22g protein per 100g, packed with natural Omega-3 fatty acids for joint and heart health.\n" +
+                    "4. **Chicken Keema (Minced Breast)**: Cook with onions, tomatoes, and peas for an easy meal prep bowl you can eat with rotis or rice.";
+        }
+
+        // 15. Diet Plan / What to Eat / Meal Plan / Breakfast, Lunch, Dinner
+        if (q.contains("what to eat") || q.contains("what should i eat") || q.contains("diet plan")
+                || q.contains("meal plan") || q.contains("breakfast") || q.contains("lunch") || q.contains("dinner")
+                || q.contains("snack") || q.contains("eating") || q.contains("food plan") || q.contains("nutrition")) {
+            return "Sample 1-Day Balanced Meal Plan (1600 - 1800 kcal Deficit Plan):\n\n" +
+                    "• **Breakfast (8:30 AM)**: 2 Moong dal chillas stuffed with 40g grated paneer (or 1 whole egg + 3 egg whites scramble) + 1 cup green tea / black coffee (~320 kcal, 22g protein).\n\n" +
+                    "• **Lunch (1:30 PM)**: 1 bowl dal + 100g cooked soya chunks curry or 150g grilled chicken breast + 1 whole wheat/bajra roti + 1 large bowl cucumber & tomato salad (~480 kcal, 38g protein).\n\n" +
+                    "• **Evening Snack (5:00 PM)**: 30g roasted makhana or 35g bhuna chana + 1 glass chaas (buttermilk) with roasted jeera (~160 kcal, 9g protein).\n\n" +
+                    "• **Dinner (8:00 PM)**: 1 bowl light vegetable dalia or brown rice with 100g paneer tikka or grilled fish fillet (~420 kcal, 28g protein).\n\n" +
+                    "• **Post-Workout / Before Bed**: 1 scoop Whey Protein in water or 200ml warm turmeric milk (~130 kcal, 25g protein).\n" +
+                    "**Total**: ~1,510 kcal | ~122g Protein | High fiber & satiety.";
+        }
+
+        // 16. Weight Loss / Fat Loss / Calorie Deficit / Cutting
+        if (q.contains("lose weight") || q.contains("weight loss") || q.contains("fat loss")
+                || q.contains("cut") || q.contains("cutting") || q.contains("deficit") || q.contains("calorie deficit")
+                || q.contains("burn fat") || q.contains("tdee") || q.contains("bmr")) {
+            return "The Exact Math Behind Sustainable Fat Loss:\n\n" +
+                    "1. **The Energy Equation**: 1 kg of stored human fat represents approximately 7,700 kcal. Creating a daily deficit of **400 to 500 kcal** below your TDEE produces a safe, reliable loss of **0.4 to 0.5 kg per week** without muscle breakdown.\n" +
+                    "2. **Preserve Your Muscle**: Eat 1.8g to 2.2g protein per kg of bodyweight and continue lifting heavy. If you drop protein or stop lifting, up to 40% of weight lost will be valuable muscle tissue instead of fat!\n" +
+                    "3. **Harness NEAT**: Walking 8,000 to 10,000 steps daily burns 300+ extra calories without triggering the ravenous hunger caused by grueling cardio.\n" +
+                    "4. **Audit Liquid & Cooking Calories**: Measure cooking oil and ghee with a teaspoon (1 tsp = ~45 kcal; free pouring easily adds 200 uncounted calories).";
+        }
+
+        // 17. Weight Gain / Muscle Building / Bulking / Skinny
+        if (q.contains("gain weight") || q.contains("weight gain") || q.contains("gain muscle")
+                || q.contains("bulk") || q.contains("bulking") || q.contains("skinny") || q.contains("hardgainer") || q.contains("mass")) {
+            return "Clean Bulking Protocol for Hardgainers (Gain Muscle, Not Fat):\n\n" +
+                    "1. **Controlled Caloric Surplus**: Eat **250 to 350 kcal above your TDEE**. A massive 1,000 kcal dirty bulk simply stores fat because muscle synthesis has a biological speed limit (~1 to 1.5 kg muscle/month for beginners).\n" +
+                    "2. **Calorie-Dense Healthy Staples**:\n" +
+                    "   • Add 2 tablespoons of peanut butter (190 kcal) to oatmeal or rotis.\n" +
+                    "   • Blend an easy high-calorie shake: 300ml milk, 1 banana, 40g oats, 1 scoop whey, 1 tbsp peanut butter (~550 kcal, 40g protein).\n" +
+                    "   • Snack on almonds, walnuts, and dates throughout the day.\n" +
+                    "3. **Progressive Overload**: Strive to add 1 rep or 1.25kg to your compound lifts every week. Extra calories only turn into muscle if there is an adaptive mechanical stimulus!";
+        }
+
+        // 18. Creatine Monohydrate Facts & Dosing
         if (q.contains("creatine")) {
-            return "Creatine Monohydrate facts & best practices:\n\n" +
-                    "1. **How It Works**: Saturates intramuscular phosphocreatine stores, enabling faster ATP resynthesis during high-intensity 1-5 rep bursts, increasing power output and water retention inside the muscle cell (cellular swelling triggers protein synthesis).\n" +
-                    "2. **Dosing**: Take **3 to 5 grams daily** consistently at any time of day. A loading phase is optional; 3-5g daily fully saturates muscle stores within 3-4 weeks.\n" +
-                    "3. **Safety**: Over 500+ peer-reviewed studies confirm its safety for healthy kidneys. Drink an extra 500ml of water daily.";
+            return "Creatine Monohydrate: The Gold Standard Supplement:\n\n" +
+                    "1. **Mechanism**: Saturates intramuscular phosphocreatine stores, accelerating ATP resynthesis during 1-5 rep heavy bursts. Increases strength, power output, and intracellular muscle hydration.\n" +
+                    "2. **Dosing**: Take **3 to 5 grams daily** consistently at any convenient time. A 20g loading phase is optional; 3-5g daily fully saturates muscle stores in 3-4 weeks.\n" +
+                    "3. **Safety**: Over 600 peer-reviewed scientific studies confirm its safety for healthy kidneys. Drink an extra 500ml of water daily.\n" +
+                    "4. **Weight Scale Note**: You may gain 1-2 kg of scale weight in week 1. This is intracellular water inside the muscle fibers, NOT body fat!";
         }
 
-        // 12. Whey Protein & Supplements
-        if (q.contains("whey") || q.contains("supplement") || q.contains("powder")) {
-            return "Whey Protein overview:\n\n" +
-                    "1. **What It Is**: Whey is simply the liquid byproduct of milk during cheese making, filtered to concentrate protein while stripping fats and lactose.\n" +
-                    "2. **Concentrate vs Isolate**: Concentrate is ~80% protein with trace carbs/lactose; Isolate is 90%+ protein and virtually lactose-free.\n" +
-                    "3. **Safety**: Whey is food, not an unnatural drug. For healthy individuals, it causes no kidney damage.\n" +
-                    "4. **Timing**: Ideal post-workout or as a quick snack, but meeting your total daily protein goal is what drives 95% of results.";
+        // 19. Whey Protein & Supplements
+        if (q.contains("whey") || q.contains("protein powder") || q.contains("supplement")
+                || q.contains("bcaa") || q.contains("pre workout") || q.contains("preworkout") || q.contains("fish oil") || q.contains("multivitamin")) {
+            return "Guide to Gym Supplements (What Works vs What to Skip):\n\n" +
+                    "1. **Whey Protein (Essential Tool)**: Naturally extracted from milk during cheese making. Concentrate is ~80% protein; Isolate is 90%+ and virtually lactose-free. It is 100% real food, not steroids.\n" +
+                    "2. **Creatine Monohydrate (Highly Recommended)**: The most proven strength and power enhancer in sports science.\n" +
+                    "3. **Caffeine / Pre-Workout (Optional)**: 150-200mg caffeine 30 mins before lifting increases focus and reduces perceived exertion.\n" +
+                    "4. **Skip BCAAs**: If you hit your daily protein goal, BCAAs are completely redundant because whole protein already contains all 9 essential amino acids.\n" +
+                    "5. **Omega-3 Fish Oil & Vitamin D3**: Essential for joint recovery, hormone production, and immunity.";
         }
 
-        // 13. Soreness (DOMS) vs Injury
-        if (q.contains("sore") || q.contains("doms") || q.contains("stiff") || q.contains("recovery")) {
-            return "DOMS (Delayed Onset Muscle Soreness) vs Injury:\n\n" +
-                    "1. **DOMS**: A dull, aching sensation across the belly of the muscle that peaks 24 to 48 hours post-workout due to microscopic muscle fiber tearing and fluid accumulation. It subsides with light movement.\n" +
-                    "2. **Joint/Tendon Injury**: A sharp, stabbing pain located directly in a joint capsule or tendon insertion that spikes during specific angles.\n" +
-                    "3. **Accelerating Recovery**: 20-30 minutes of low-intensity Zone 2 walking increases capillary blood flow, flushing cellular debris. Ensure 7-9 hours of sleep and adequate hydration.";
+        // 20. Water & Daily Hydration
+        if (q.contains("water") || q.contains("hydration") || q.contains("drink") || q.contains("liters") || q.contains("litres")) {
+            return "Hydration Guidelines for Lifting & Fat Loss:\n\n" +
+                    "1. **Baseline Target**: Drink **35 to 40 ml per kg of bodyweight** (typically 3.0 to 4.0 liters per day for active lifters).\n" +
+                    "2. **During Workout**: Drink 500 to 750 ml of water with a pinch of pink Himalayan salt (sodium electrolyte) to prevent muscle cramping and maintain intra-cellular pump.\n" +
+                    "3. **Fat Loss Benefit**: Dehydration is frequently misdiagnosed by the brain as sugar cravings. Drinking a large glass of water 15 minutes before meals decreases spontaneous overeating.\n" +
+                    "4. **Color Check**: Your urine should be pale straw yellow. Dark yellow indicates dehydration; completely clear means you may be flushing electrolytes.";
         }
 
-        // 14. Shin Splints & Running Mechanics
-        if (q.contains("shin") || (q.contains("run") && (q.contains("pain") || q.contains("hurt")))) {
-            return "Overcoming Shin Splints & Running Pain:\n\n" +
-                    "1. **Primary Cause**: Overstriding (landing heel-first far in front of your center of mass), creating massive braking forces up the tibia.\n" +
-                    "2. **Fix Cadence**: Increase your step frequency to 165-175 steps per minute (SPM). Shorter, quicker strides ensure your foot lands directly beneath your hips.\n" +
-                    "3. **Strengthen the Tibialis**: Perform seated or standing tibialis toe-raises (raising your toes toward your shins against a wall) for 3 sets of 20 reps.\n" +
-                    "4. **Surface**: Transition from hard asphalt to dirt tracks, grass, or treadmills during flare-ups.";
+        // 21. Sleep, Rest & Soreness (DOMS) vs Injury
+        if (q.contains("sleep") || q.contains("rest") || q.contains("recovery") || q.contains("doms")
+                || q.contains("sore") || q.contains("soreness") || q.contains("stiff") || q.contains("rest day")) {
+            return "Recovery, Sleep & Muscle Soreness (DOMS):\n\n" +
+                    "1. **DOMS vs Real Injury**:\n" +
+                    "   • **DOMS**: A dull, diffuse ache across the muscle belly peaking 24 to 48 hours post-workout from microscopic micro-tears. It gets better with a light warm-up.\n" +
+                    "   • **Injury**: Sharp, localized, stabbing pain in a joint or tendon that spikes under load.\n" +
+                    "2. **Sleep is Non-Negotiable**: Human Growth Hormone (HGH) and protein synthesis peak during deep slow-wave sleep. Aim for **7.5 to 9 hours nightly**.\n" +
+                    "3. **Active Recovery**: On rest days, do a 30-minute easy outdoor walk or light mobility work. Light movement promotes capillary blood flow and flushes metabolic waste far faster than lying stationary in bed.";
         }
 
-        // 15. Six Pack Abs & Spot Reduction
-        if (q.contains("abs") || q.contains("six pack") || q.contains("belly fat") || q.contains("spot reduce")) {
-            return "The science of visible abdominal muscles:\n\n" +
-                    "1. **The Spot Reduction Myth**: You cannot choose where your body burns fat. Crunches build the rectus abdominis muscle, but fat oxidation occurs systemically from a sustained calorie deficit.\n" +
-                    "2. **Body Fat Threshold**: In men, abs typically become clearly visible at 10-12% body fat; in women, around 18-20%.\n" +
-                    "3. **Hypertrophy for Abs**: Treat your core like any other muscle group. Progressive overload on **Hanging Leg/Knee Raises** (posterior pelvic tilt) and **Cable Kneeling Crunches** builds thick abdominal bricks that show at higher body fat percentages.";
+        // 22. Running, Cardio & Stamina
+        if (q.contains("run") || q.contains("running") || q.contains("cardio") || q.contains("stamina")
+                || q.contains("endurance") || q.contains("5k") || q.contains("10k") || q.contains("treadmill") || q.contains("hiit") || q.contains("shin")) {
+            return "Cardio, Running & Stamina Optimization:\n\n" +
+                    "1. **The 80/20 Aerobic Rule**:\n" +
+                    "   • **80% Zone 2 Cardio**: Run or power-walk at a conversational pace (heart rate ~60-70% max). This builds mitochondrial density and burns fat without fatiguing your nervous system.\n" +
+                    "   • **20% High Intensity / Speed**: 1 weekly session of intervals or hill sprints.\n" +
+                    "2. **Preventing Shin Splints**: Increase your cadence to 165-175 steps per minute. Shorter strides prevent heel-striking far ahead of your hips, eliminating tibial impact.\n" +
+                    "3. **Cardio vs Weights**: Always perform resistance training FIRST, followed by cardio, so you do not deplete glycogen needed for heavy lifting.";
         }
 
-        // 16. Fasting & Intermittent Fasting (16:8)
-        if (q.contains("fasting") || q.contains("intermittent")) {
-            return "Intermittent Fasting (16/8) in Fitness:\n\n" +
-                    "1. **How It Works**: Skipping breakfast condenses your calorie intake into an 8-hour window (e.g. 12 PM to 8 PM). It does not magically burn more fat than an equivalent continuous deficit, but it helps many people feel fuller on larger meals.\n" +
-                    "2. **Protein Distribution**: Ensure you still hit your 1.8-2.2g/kg protein target divided across 2-3 meals within your eating window.\n" +
-                    "3. **Workout Timing**: If lifting during a fast, stay hydrated with electrolytes and break your fast with a high-protein meal within 1-2 hours.";
+        // 23. Workout Splits & Routine Scheduling
+        if (q.contains("split") || q.contains("routine") || q.contains("workout plan") || q.contains("how many days")
+                || q.contains("ppl") || q.contains("push pull legs") || q.contains("upper lower") || q.contains("bro split") || q.contains("schedule")) {
+            return "Selecting the Optimal Workout Split for Your Schedule:\n\n" +
+                    "1. **3 Days per Week**: **Full Body (Mon / Wed / Fri)**. Every muscle is hit 3x weekly with high frequency and ample recovery.\n" +
+                    "2. **4 Days per Week**: **Upper / Lower Split (Mon, Tue, Thu, Fri)**. The most balanced split for busy lifters. Hits every muscle group 2x weekly.\n" +
+                    "3. **5 to 6 Days per Week**: **Push / Pull / Legs (PPL)**. Allows high volume per muscle group with dedicated arm and shoulder specialization.\n" +
+                    "4. **The Science Rule**: Training a muscle group **2 times per week** produces ~30% greater hypertrophy over time than hitting it only once in a typical 'Bro Split'.";
         }
 
-        // Default Rich Science Response
-        return "FitTrack Sports Science Coach response:\n\n" +
-                "I am your dedicated fitness & nutrition assistant grounded in your current profile.\n\n" +
-                "Here are key areas I can specifically help you optimize:\n" +
-                "• **Joint Discomfort & Substitutions**: Shoulder, knee, lower back, or elbow pain modifications\n" +
-                "• **Indian Diet Optimization**: Hitting 120g+ protein on vegetarian (paneer, soya, dal, sattu) or non-vegetarian meals\n" +
-                "• **Plateau Busting**: Progressive overload schemes, 2-for-2 rules, and deloading\n" +
-                "• **Calorie Deficit Calculation**: Mifflin-St Jeor TDEE breakdowns and avoiding metabolic slowdown\n\n" +
-                "Feel free to ask a specific question, describe what hurts, or ask about a meal!";
+        // 24. Breaking Plateaus & Progressive Overload
+        if (q.contains("plateau") || q.contains("stuck") || q.contains("progressive overload")
+                || q.contains("2 for 2") || q.contains("deload") || q.contains("not losing")) {
+            return "Breaking Through Strength & Fat Loss Plateaus:\n\n" +
+                    "1. **Strength Plateau**: Apply the **2-for-2 Rule**:\n" +
+                    "   • If you can complete 2 additional reps past your target on your last set for 2 consecutive sessions, increase the weight by 1.25kg to 2.5kg.\n" +
+                    "   • Take a **1-Week Deload**: Reduce training volume by 50% for 7 days. This allows accumulated systemic CNS fatigue to dissipate while preserving muscle.\n\n" +
+                    "2. **Weight Loss Plateau**:\n" +
+                    "   • **Metabolic Adaptation**: As you drop weight, your body requires fewer calories to operate. Recalculate your TDEE for your new lower weight.\n" +
+                    "   • **Refeed Day**: Have 1 day eating at maintenance calories (boost carbs, keep fats low) to stimulate leptin and thyroid function.";
+        }
+
+        // 25. Motivation & Consistency
+        if (q.contains("motivation") || q.contains("consistent") || q.contains("lazy")
+                || q.contains("discipline") || q.contains("give up") || q.contains("hard")) {
+            return "Building Unshakable Fitness Consistency:\n\n" +
+                    "1. **Action Precedes Motivation**: You will rarely 'feel' motivated before walking into the gym. Motivation is the byproduct of taking action and seeing small wins, not the prerequisite.\n" +
+                    "2. **The 2-Minute Rule**: On days you feel exhausted, commit to doing just 5 minutes or 1 exercise. 90% of the time, once you warm up, momentum carries you through the full session.\n" +
+                    "3. **Never Miss Twice**: Missing 1 workout or 1 meal won't derail you; missing 2 in a row creates a downward spiral. Reset on your very next meal.\n" +
+                    "4. **Track Everything**: Use FitTrack's nutrition and workout logs. What gets measured gets managed!";
+        }
+
+        // 26. Exercise Form & Breathing Technique
+        if (q.contains("form") || q.contains("technique") || q.contains("breathe") || q.contains("breathing") || q.contains("brace")) {
+            return "Universal Gym Form & Intra-Abdominal Bracing Cue:\n\n" +
+                    "1. **The Valsalva Maneuver (Core Bracing)**: Take a deep diaphragmatic breath into your belly (expand 360°), brace your abs as if expecting a punch, and hold during the descent. Exhale through pursed lips past the sticking point.\n" +
+                    "2. **Scapular Control**: On chest and overhead presses, retract and depress your shoulder blades (pull them back and down into your back pockets) to lock the glenohumeral joint in place.\n" +
+                    "3. **Control the Eccentric**: Lower every lift over 2-3 seconds under active muscular control; never drop the weight freely.";
+        }
+
+        // 27. Specific Follow-Up / Rehab steps
+        if ((q.contains("what can i do") || q.contains("what should i do") || q.contains("what next"))
+                && (q.contains("recover") || q.contains("heal") || q.contains("swelling") || q.contains("rehab"))) {
+            return "Targeted Active Recovery Protocol:\n\n" +
+                    "1. **Active Rest**: Shift today's training to an unaffected muscle group (e.g. if upper body is sore, do legs or Zone 2 cardio).\n" +
+                    "2. **Temperature Therapy**: Use cold compression for 15 minutes if there is acute swelling; use warm showers or heating pads for tight, guarded muscles to boost circulation.\n" +
+                    "3. **Hydration & Micronutrients**: Drink 3.5 liters of water and consume anti-inflammatory staples (haldi doodh with black pepper, omega-3s, and zinc).\n" +
+                    "4. **Light Mobilization**: Gentle unloaded range of motion exercises (pendulum swings, cat-cows) circulate synovial fluid into the joint capsule.";
+        }
+
+        // 28. Smart Context-Aware Dynamic Fallback
+        return "FitTrack Coach Analysis for: \"" + message + "\"\n\n" +
+                (userContext != null && !userContext.isEmpty() ? "**Your Profile Data**: " + userContext + "\n\n" : "") +
+                "Here are actionable suggestions tailored to your goals:\n" +
+                "1. **Nutrition & Deficit**: Align your meals with your target daily calories and protein goals. Try high-protein Indian staples like soya chunks, low-fat paneer, eggs, and moong dal.\n" +
+                "2. **Training Progression**: Apply progressive overload across your compound lifts (bench, rows, squats, overhead presses) by tracking your weights and reps.\n" +
+                "3. **Recovery**: Ensure 7-8 hours of sleep and 3.5L of daily water intake.\n\n" +
+                "Tip: Ask me specifically about **'chest workout'**, **'Indian veg protein'**, **'shoulder pain'**, or **'calorie deficit math'** for instant deep-dive protocols!";
     }
+
 
     /**
      * Fully dynamic workout routine builder that responds precisely to split, days, equipment, and level.
