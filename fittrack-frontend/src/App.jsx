@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import ChatbotWidget from './components/ChatbotWidget';
 import DashboardPage from './pages/DashboardPage';
 import NutritionPage from './pages/NutritionPage';
 import WorkoutPage from './pages/WorkoutPage';
@@ -29,8 +30,10 @@ function ProtectedRoute({ children }) {
 }
 
 function MainLayout() {
+  const { user } = useAuth();
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative">
       <Navbar />
       <main className="flex-1">
         <Routes>
@@ -44,6 +47,9 @@ function MainLayout() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
+      {/* Floating Global AI Chatbot for Authenticated Users */}
+      {user && <ChatbotWidget />}
 
       <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
         <p>FitTrack • Precision Calorie Deficit Engine &amp; AI Fitness Suite</p>
